@@ -1,64 +1,56 @@
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        float itemCost = -1.1f;
-        int personsQuantity = -1;
-        while (personsQuantity < 0) {personsQuantity = inputPersonsQuantity();} // получем колчиество персон
+        int personsQuantity = inputPersonsQuantity(); // получем колчиество персон
         String itemName = inputItemName(1); // получаем имя первого товара
-        while (itemCost < 0) {itemCost = inputItemCost(itemName);} // получаем стоимость товара
-        new ItemsBasket();
-        new Calculator();
+        float itemCost = inputItemCost(itemName); // получаем стоимость товара
 
         ItemsBasket.addItemInBasket(itemName); // записали Item в Basket
         Calculator.sumCostsOfItems(itemCost); // приплюсовали Cost
         int roubles = (int) (itemCost);
-        int pennies = (int) ((itemCost % 1)*100);
-        String roubleName = Calculator.findRightRoubleWord (roubles);
-        String pennyName = Calculator.findRightPennyWord (pennies);
+        String roubleName = Calculator.findRightRoubleWord(roubles);
 
-        System.out.printf("Вы успешно добавили товар %s стоимостью %d %s %d %s%n", itemName,roubles,roubleName,pennies,pennyName );
+        System.out.printf("Вы успешно добавили товар %s стоимостью %.2f %s%n", itemName, itemCost, roubleName);
         while (true) {
             itemName = inputItemName(2); // получаем имя следующего товара
-            if (itemName.equalsIgnoreCase("ЗАВЕРШИТЬ")) {break;} // проверяем команду Завершить
+            if (itemName.equalsIgnoreCase("ЗАВЕРШИТЬ")) {
+                break;
+            } // проверяем команду Завершить
             itemCost = -1.1f; // сброс предыдущего значения для вхождения в цикл
-            while (itemCost < 0) {itemCost = inputItemCost(itemName);}// получаем стоимость следующего товара
+            while (itemCost < 0) {
+                itemCost = inputItemCost(itemName);
+            }// получаем стоимость следующего товара
             ItemsBasket.addItemInBasket(itemName); // записали Item в Basket
             Calculator.sumCostsOfItems(itemCost); // приплюсовали Cost
             roubles = (int) (itemCost);
-            pennies = (int) ((itemCost % 1)*100);
-            roubleName = Calculator.findRightRoubleWord (roubles);
-            pennyName = Calculator.findRightPennyWord (pennies);
-            System.out.printf("Вы успешно добавили товар %s стоимостью %d %s %d %s%n", itemName,roubles,roubleName,pennies,pennyName );
+            roubleName = Calculator.findRightRoubleWord(roubles);
+            System.out.printf("Вы успешно добавили товар %s стоимостью %.2f %s%n", itemName, itemCost, roubleName);
         }
 
         float resultCalculator = Calculator.calculateCostPerPerson(personsQuantity);
         ItemsBasket.writeItemsFromBasket();
         roubles = (int) (resultCalculator);
-        pennies = (int) ((resultCalculator % 1)*100);
-        roubleName = Calculator.findRightRoubleWord (roubles);
-        System.out.printf("Каждому нужно заплатить %d,%d %s%n",roubles,pennies,roubleName);
+        roubleName = Calculator.findRightRoubleWord(roubles);
+        System.out.printf("Каждому нужно заплатить %.2f %s%n", resultCalculator, roubleName);
     }
 
 //_____________________________________________________________________________________________
 
     public static int inputPersonsQuantity() {
         Scanner scanner = new Scanner(System.in);
-        int errorInt = -1;
         System.out.println("Введите число персон, на которых разделить счет:");
-        try {
-            int personsQuantity = scanner.nextInt(); // После запуска программа должна спрашивать у пользователя, на скольких человек необходимо разделить счёт.
-            while (personsQuantity <= 1) {
-                System.out.println("Вы ввели неправильное число персон.");
-                System.out.println("Снова введите число персон, на которых будем делить счет. Персон должно быть две и больше:");
+        int personsQuantity;
+        while (true) {
+            if (scanner.hasNextInt()) {
                 personsQuantity = scanner.nextInt();
+                break;
+            } else {
+                System.out.println("Ошибочный ввод. Попробуйте ещё раз ввести число персон в виде целого положительного числа, например 10,45");
+                scanner.next();
             }
-            return personsQuantity;
-        } catch (InputMismatchException e) {
-            System.out.println("Ошибочный ввод. Попробуйте ещё раз ввести число персон в виде целого положительного числа, например 10:");
-            return errorInt;
         }
+        return personsQuantity;
     }
 
     public static String inputItemName(int type) {
@@ -84,18 +76,20 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Введите стоимость товара " + itemName + " в формате 0,00 в рублях с копейками:");
         float itemCost;
-        float errorFloat = -1.10f;
-
-        try {
-            itemCost = scanner.nextFloat();
-            if (itemCost < 0) {
+        while (true) {
+            if (scanner.hasNextFloat()) {
+                itemCost = scanner.nextFloat();
+                if (itemCost >= 0) {
+                    break;
+                } else {
+                    System.out.println("Вы ввели стоимость не в правильном фомате. Попробуйте ещё раз, например 10,45");
+                    scanner.next();
+                }
+            } else {
                 System.out.println("Вы ввели стоимость не в правильном фомате. Попробуйте ещё раз, например 10,45");
-                return errorFloat;
+                scanner.next();
             }
-        } catch (InputMismatchException e) {
-            System.out.println("Вы ввели стоимость не в правильном фомате. Попробуйте ещё раз, например 10,45");
-            return errorFloat;
-            }
+        }
         return itemCost;
     }
 }
